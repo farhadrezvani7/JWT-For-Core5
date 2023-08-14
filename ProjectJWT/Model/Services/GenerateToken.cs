@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using ProjectJWT.Model.Dtos;
 using ProjectJWT.Model.Entitys;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace ProjectJWT.Model.Services
 {
     public class GenerateToken
     {
-        public static string GetToken(User users)
+        public static JwtDto GetToken(User users)
         {
             //در فانکشن زیر تمامی کلاین هایی که می خواهیم باهاشون بدنه یا پیلود توکن خودمون رو بسازیم رو وارد می کنیم
             var claims = new List<Claim>()
@@ -34,6 +35,7 @@ namespace ProjectJWT.Model.Services
             var encryptionCredential = new EncryptingCredentials(encryptionKey, SecurityAlgorithms.Aes128KW,SecurityAlgorithms.Aes128CbcHmacSha256);
             //خودمون رو تنظیم می کنیم JWT در فانکشن زیر ویژگی های کلی توکن
             //برخی از این ویژگی ها در بدنه یا همان پیلود توکن دیده قابل مشاهده هستند
+            var expires = DateTime.Now.AddDays(7);
             var descriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(claims),
@@ -42,7 +44,7 @@ namespace ProjectJWT.Model.Services
                 //تاریخ شروع اعتبار توکن
                 IssuedAt = DateTime.Now,
                 //تاریخ پایان اعتبار توکن
-                Expires = DateTime.Now.AddDays(7),
+                Expires = expires,
                 //می تونیم تاریخ شروع اعتبار توکن رو الان بزاریم اما در خط زیر مشخص کنیم که از چند وقت دیگه این توکن قابل استفاده باشه
                 NotBefore = DateTime.Now,
                 //امضایی که قبلا از کلید 16 رقمی خودمون درست کرده بودیم رو به پارامتر پایین پاس میدیم
@@ -55,8 +57,15 @@ namespace ProjectJWT.Model.Services
             //در کد زیر، کل توکن رو حالا می سازیم
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityToken = tokenHandler.CreateToken(descriptor);
+            var token = tokenHandler.WriteToken(securityToken);
+            var jwtFilde = new JwtDto
+            {
+                Token = token,
+                ExpireTime = expires,
+            };
 
-            return tokenHandler.WriteToken(securityToken);
+           /* return tokenHandler.WriteToken(securityToken);*/
+           return jwtFilde;
         }
     }
 }

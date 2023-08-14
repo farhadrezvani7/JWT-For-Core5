@@ -63,11 +63,8 @@ namespace ProjectJWT.Controllers
             if(user.PasswordHash != GetHash(registerViewModel.PasswordHash))
                 return Conflict("رمز عبور صحیح نیست.");
             
-            var jwtFilde = new JwtDto
-            {
-                Token = GenerateToken.GetToken(user),
-            };
-            return Ok(jwtFilde);
+           
+            return Ok(GenerateToken.GetToken(user));
         }
 
         [Authorize]
